@@ -1,0 +1,22 @@
+<script type="text/javascript">
+  let productList = document.createElement('ul')
+
+  const myHeaders = new Headers();
+  myHeaders.append('authorization', `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2MDhiNmUwYzE2YmIwZjBmOGI2NjQyM2MiLCJpYXQiOjE2MTk3NTA0MTMsImV4cCI6MTYyMDk2MDAxM30._x7zENT3f2nHxovvVdNsSKOOyHcTryq1AAaEcFjK2cg`)
+
+  fetch('/api/product', {
+    method: 'GET',
+    headers: myHeaders
+  })
+  .then(res => res.json())
+  .then(data => {
+    data.list.map(product => {
+      let text = document.createTextNode(product.name)
+      let elem = document.createElement('li')
+      elem.appendChild(text)
+      productList.appendChild(elem)
+    })
+
+    document.body.appendChild(productList)
+  })
+</script>
