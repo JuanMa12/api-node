@@ -8,25 +8,22 @@ const UserSchema = new Schema({
   email: { type: String, unique: true, lowercase: true },
   name: String,
   avatar: String,
-  password: { type: String, select: false },
+  hash: String,
+  salt: String,
   signupDate: { type: Date, default: Date.now() },
   lastLogin: Date
 })
 
-UserSchema.pre('save', (next) => {
-  let user = this
-  //if (!user.isModified('password')) return next()
+// Method to save the password crypto
+UserSchema.methods.setPassword = function(password) {
+    this.salt = crypto.randomBytes(16).toString('hex');
+    this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, `sha512`).toString(`hex`);
+};
 
-  bcrypt.genSalt(10, (err, salt) => {
-    if (err) return next(err)
-
-    bcrypt.hash(user.password, salt, null, (err, hash) => {
-      if (err) return next(err)
-
-      user.password = hash
-      next()
-    })
-  })
-})
+// Method to check the entered password is correct or not
+UserSchema.methods.validPassword = function(password) {
+    var hash = crypto.pbkdf2Sync(password,this.salt, 1000, 64, `sha512`).toString(`hex`);
+    return this.hash === hash;
+};
 
 module.exports = mongoose.model('User', UserSchema)
